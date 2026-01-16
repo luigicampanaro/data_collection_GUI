@@ -1,6 +1,13 @@
 // --- Configuration ---
-const ROS_BRIDGE_URL = 'ws://localhost:9091';
+const DEFAULT_IP = 'localhost';
+const DEFAULT_PORT = '9091';
 const TOPIC_NAME = '/collection_commands';
+
+function getRosUrl() {
+    const ip = localStorage.getItem('ros_ip') || DEFAULT_IP;
+    const port = localStorage.getItem('ros_port') || DEFAULT_PORT;
+    return `ws://${ip}:${port}`;
+}
 
 // --- State Management ---
 const STATE = {
@@ -18,9 +25,22 @@ const ui = {
     btnStart: document.getElementById('btn-start'),
     btnStop: document.getElementById('btn-stop'),
     btnDelete: document.getElementById('btn-delete'),
+    
+    // Modals
     modal: document.getElementById('modal-overlay'),
+    settingsModal: document.getElementById('settings-modal-overlay'),
+    
+    // Modal Buttons
     btnCancel: document.getElementById('btn-cancel'),
     btnConfirmDelete: document.getElementById('btn-confirm-delete'),
+    btnCancelSettings: document.getElementById('btn-cancel-settings'),
+    btnSaveSettings: document.getElementById('btn-save-settings'),
+    
+    // Inputs & Triggers
+    btnSettings: document.getElementById('btn-settings'),
+    inputIp: document.getElementById('input-ip'),
+    inputPort: document.getElementById('input-port'),
+    
     buttons: document.querySelectorAll('button') // For physics handlers
 };
 
@@ -33,8 +53,11 @@ function init() {
 }
 
 function initRos() {
+    const url = getRosUrl();
+    console.log(`Connecting to ROS at ${url}`);
+    
     ros = new ROSLIB.Ros({
-        url: ROS_BRIDGE_URL
+        url: url
     });
 
     ros.on('connection', () => {
@@ -94,6 +117,27 @@ function closeDeleteModal() {
     ui.modal.classList.add('hidden');
 }
 
+function openSettings() {
+    ui.inputIp.value = localStorage.getItem('ros_ip') || DEFAULT_IP;
+    ui.inputPort.value = localStorage.getItem('ros_port') || DEFAULT_PORT;
+    ui.settingsModal.classList.remove('hidden');
+}
+
+function closeSettings() {
+    ui.settingsModal.classList.add('hidden');
+}
+
+function saveSettings() {
+    const ip = ui.inputIp.value.trim();
+    const port = ui.inputPort.value.trim();
+    
+    if (ip) localStorage.setItem('ros_ip', ip);
+    if (port) localStorage.setItem('ros_port', port);
+    
+    closeSettings();
+    location.reload(); // Simple reload to reconnect
+}
+
 function confirmDelete() {
     publishCommand('delete');
     closeDeleteModal();
@@ -130,9 +174,18 @@ function setupEventListeners() {
     ui.btnCancel.addEventListener('click', closeDeleteModal);
     ui.btnConfirmDelete.addEventListener('click', confirmDelete);
 
+    // Settings Events
+    ui.btnSettings.addEventListener('click', openSettings);
+    ui.btnCancelSettings.addEventListener('click', closeSettings);
+    ui.btnSaveSettings.addEventListener('click', saveSettings);
+
     // Close modal on background click
     ui.modal.addEventListener('click', (e) => {
         if (e.target === ui.modal) closeDeleteModal();
+    });
+    
+    ui.settingsModal.addEventListener('click', (e) => {
+        if (e.target === ui.settingsModal) closeSettings();
     });
 }
 
