@@ -1,0 +1,268 @@
+:root {
+    --bg-color: #FBFBFD;
+    --card-bg: #FFFFFF;
+    --text-primary: #1D1D1F;
+    --text-secondary: #86868B;
+    
+    /* Apple Colors */
+    --green-success: #34C759;
+    --orange-warning: #FF9F0A;
+    --red-destructive: #FF453A;
+    --gray-cancel: #E5E5EA;
+    
+    /* Physics */
+    --spring-physics: cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    /* Shadows - Refined for "Apple" feel */
+    --shadow-card: 
+        0 0 0 1px rgba(0,0,0,0.03), /* Subtle definition ring */
+        0 24px 48px -12px rgba(0, 0, 0, 0.12); /* Deep, soft diffusion */
+        
+    --shadow-btn-floating: 
+        0 0 0 1px rgba(0,0,0,0.04), /* Border replacement */
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        0 8px 24px -4px rgba(0, 0, 0, 0.04);
+        
+    --shadow-btn-active: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.15), /* Inner depth */
+        inset 0 0 0 1px rgba(0,0,0,0.05); /* Inner definition */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    letter-spacing: -0.022em; /* SF Pro tightness */
+}
+
+/* --- Main Card --- */
+.container {
+    padding: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 32px;
+    padding: 48px; /* More breathing room */
+    width: 100%;
+    max-width: 440px;
+    box-shadow: var(--shadow-card);
+    text-align: center;
+    position: relative;
+}
+
+/* --- Header --- */
+.status-header {
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+h1 {
+    font-weight: 700; /* Bolder header */
+    font-size: 26px;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--text-secondary);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.status-dot.connected {
+    background-color: var(--green-success);
+    box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.2);
+}
+
+/* --- Buttons --- */
+button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 17px;
+    transition: transform 0.4s var(--spring-physics), 
+                box-shadow 0.3s ease,
+                background-color 0.2s ease,
+                color 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Control Group */
+.control-group {
+    display: flex;
+    gap: 24px; /* Wider gap */
+    margin-bottom: 40px;
+}
+
+.action-btn {
+    flex: 1;
+    height: 88px; /* Slightly taller */
+    border-radius: 24px; /* Matches height */
+    background: white;
+    box-shadow: var(--shadow-btn-floating);
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    position: relative;
+    overflow: hidden; /* For gradient overlay */
+}
+
+/* Colors - Text only in floating state */
+.action-btn.start { color: var(--green-success); }
+.action-btn.stop { color: var(--orange-warning); }
+
+/* --- Interactions --- */
+
+/* Pressed State */
+.action-btn:active, .action-btn.is-pressed,
+.text-btn:active, .text-btn.is-pressed,
+.modal-btn:active, .modal-btn.is-pressed {
+    transform: scale(0.94); /* Slightly deeper press */
+    box-shadow: 
+        0 0 0 1px rgba(0,0,0,0.04),
+        0 2px 4px rgba(0,0,0,0.05); /* Collapsed shadow */
+}
+
+/* Active State */
+.action-btn.active {
+    color: white;
+    box-shadow: var(--shadow-btn-active);
+}
+
+/* Subtle gradient overlay for active state volume */
+.action-btn.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(255,255,255,0));
+    pointer-events: none;
+}
+
+.action-btn.start.active { background-color: var(--green-success); }
+.action-btn.stop.active { background-color: var(--orange-warning); }
+
+/* Secondary Button */
+.secondary-group {
+    display: flex;
+    justify-content: center;
+}
+
+.text-btn {
+    background: transparent;
+    color: var(--red-destructive);
+    font-size: 17px; /* Larger text size */
+    font-weight: 500;
+    padding: 14px 28px;
+    border-radius: 14px;
+    transition: background 0.2s ease, transform 0.3s var(--spring-physics);
+}
+
+.text-btn:hover {
+    background: rgba(255, 69, 58, 0.08);
+}
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Darker overlay to make blur visible against off-white bg */
+    background: rgba(0, 0, 0, 0.15); 
+    backdrop-filter: blur(25px) saturate(180%); /* Apple "Vibrancy" blur */
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    background: rgba(255, 255, 255, 0.95); /* Slight transparency */
+    padding: 40px;
+    width: 85%;
+    max-width: 340px;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    text-align: center;
+    transform: scale(1);
+    transition: transform 0.3s var(--spring-physics);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.modal-overlay.hidden .modal-card {
+    transform: scale(0.9);
+}
+
+.modal-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.modal-card p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 16px;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.modal-btn.cancel {
+    background: var(--gray-cancel);
+    color: var(--text-primary);
+}
+
+.modal-btn.destructive {
+    background: var(--red-destructive);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 69, 58, 0.25);
+}
