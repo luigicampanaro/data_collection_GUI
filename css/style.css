@@ -8,6 +8,7 @@
     --green-success: #34C759;
     --orange-warning: #FF9F0A;
     --red-destructive: #FF453A;
+    --blue-primary: #007AFF;
     --gray-cancel: #E5E5EA;
     
     /* Physics */
@@ -188,6 +189,66 @@ button {
     background: rgba(255, 69, 58, 0.08);
 }
 
+
+/* --- Icon Button --- */
+.icon-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s var(--spring-physics);
+}
+
+.icon-btn:hover {
+    background: rgba(0,0,0,0.05);
+    color: var(--text-primary);
+}
+
+.icon-btn:active {
+    transform: scale(0.92);
+}
+
+/* --- Form Elements --- */
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    margin-left: 4px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 17px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 12px;
+    background: rgba(0,0,0,0.02);
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    -webkit-appearance: none;
+}
+
+.input-group input:focus {
+    border-color: var(--blue-primary);
+    background: white;
+}
+
 /* --- Modal --- */
 .modal-overlay {
     position: fixed;
@@ -265,4 +326,10 @@ button {
     background: var(--red-destructive);
     color: white;
     box-shadow: 0 4px 12px rgba(255, 69, 58, 0.25);
+}
+
+.modal-btn.primary {
+    background: var(--blue-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
 }
