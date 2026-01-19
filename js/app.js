@@ -1,7 +1,6 @@
 // --- Configuration ---
 const DEFAULT_IP = 'localhost';
 const DEFAULT_PORT = '9091';
-const TOPIC_NAME = '/collection_commands';
 
 function getRosUrl() {
     const ip = localStorage.getItem('ros_ip') || DEFAULT_IP;
@@ -17,7 +16,8 @@ const STATE = {
 
 let currentState = STATE.IDLE;
 let ros = null;
-let cmdTopic = null;
+let toggleClient = null;
+let deleteClient = null;
 
 // --- UI Elements ---
 const ui = {
@@ -75,20 +75,17 @@ function initRos() {
         ui.statusDot.classList.remove('connected');
     });
 
-    cmdTopic = new ROSLIB.Topic({
+    toggleClient = new ROSLIB.Service({
         ros: ros,
-        name: TOPIC_NAME,
-        messageType: 'std_msgs/String'
+        name: '/collection_toggle',
+        serviceType: 'std_srvs/srv/SetBool'
     });
-}
 
-function publishCommand(data) {
-    if (!cmdTopic) return;
-    const msg = new ROSLIB.Message({
-        data: data
+    deleteClient = new ROSLIB.Service({
+        ros: ros,
+        name: '/collection_delete',
+        serviceType: 'std_srvs/srv/Trigger'
     });
-    cmdTopic.publish(msg);
-    console.log(`Published: ${data}`);
 }
 
 // --- Logic & Guards ---
@@ -96,17 +93,37 @@ function publishCommand(data) {
 function handleStart() {
     if (currentState === STATE.RECORDING) return; // Guard
     
-    currentState = STATE.RECORDING;
-    publishCommand('start');
-    updateUI();
+    const request = new ROSLIB.ServiceRequest({
+        data: true
+    });
+
+    toggleClient.callService(request, (result) => {
+        if (result.success) {
+            console.log('Start success:', result.message);
+            currentState = STATE.RECORDING;
+            updateUI();
+        } else {
+            console.error('Start failed:', result.message);
+        }
+    });
 }
 
 function handleStop() {
     if (currentState === STATE.IDLE) return; // Guard
     
-    currentState = STATE.IDLE;
-    publishCommand('stop');
-    updateUI();
+    const request = new ROSLIB.ServiceRequest({
+        data: false
+    });
+
+    toggleClient.callService(request, (result) => {
+        if (result.success) {
+            console.log('Stop success:', result.message);
+            currentState = STATE.IDLE;
+            updateUI();
+        } else {
+            console.error('Stop failed:', result.message);
+        }
+    });
 }
 
 function openDeleteModal() {
@@ -139,8 +156,17 @@ function saveSettings() {
 }
 
 function confirmDelete() {
-    publishCommand('delete');
-    closeDeleteModal();
+    const request = new ROSLIB.ServiceRequest({});
+
+    deleteClient.callService(request, (result) => {
+        if (result.success) {
+            console.log('Delete success:', result.message);
+            closeDeleteModal();
+        } else {
+            console.error('Delete failed:', result.message);
+            alert('Delete failed: ' + result.message);
+        }
+    });
 }
 
 function updateUI() {
